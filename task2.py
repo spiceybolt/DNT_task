@@ -1,43 +1,36 @@
 import cv2
 
-input_video_path = 'input.mp4'
+input_video_path = 'input.mp4'  # Replace with the path to your input video
 cap = cv2.VideoCapture(input_video_path)
 
-fps = int(cap.get(cv2.CAP_PROP_FPS))
-frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-output_video_path = 'outputrevslow.mp4'
+frame_width = int(cap.get(3))
+frame_height = int(cap.get(4))
+fps = int(cap.get(5))
 
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
+output_video_path = 'output_video.mp4'
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
 
-slow = 2
-frames = []
+frame_list = []
 while cap.isOpened():
     ret, frame = cap.read()
+
     if not ret:
         break
-    frames.append(frame)
 
-for frame in reversed(frames):
+    frame_list.append(frame)
+
+cap.release()
+
+reversed_frame_list = frame_list[::-1]
+
+target_fps = 15
+frame_interval = int(fps / target_fps)
+
+for frame in reversed_frame_list:
     out.write(frame)
+    for _ in range(frame_interval - 1):
+        out.write(frame)  
 
-cap.release()
 out.release()
 
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
-input_video_path = output_video_path
-cap = cv2.VideoCapture(input_video_path)
-output_video_path = 'final.mp4'
-
-out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
-slow = 2
-while cap.isOpened():
-    ret, frame = cap.read()
-    if not ret:
-        break
-
-    for _ in range(slow):
-        out.write(frame)
-cap.release()
-out.release()
